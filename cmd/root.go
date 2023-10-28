@@ -58,4 +58,5 @@ func init() {
 	rootCmd.AddCommand(k8s.KubeCmd)
 	rootCmd.AddCommand(maven.MavenCmd)
 	rootCmd.AddCommand(ide.IdeCmd)
+	rootCmd.AddCommand(docker.DockerComposeCmd)
 }
