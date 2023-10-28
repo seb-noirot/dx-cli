@@ -64,18 +64,6 @@ var registerSSHKeyCmd = &cobra.Command{
 	},
 }
 
-func TestSSHConnection(host string) error {
-	cmd := exec.Command("ssh", "-T", fmt.Sprintf("git@%s", host))
-	output, err := cmd.CombinedOutput()
-
-	if err != nil {
-		return fmt.Errorf("SSH connection failed: %s", err)
-	}
-
-	fmt.Println("SSH connection successful. Output:", string(output))
-	return nil
-}
-
 func init() {
 	GitlabCmd.AddCommand(registerSSHKeyCmd)
 }
