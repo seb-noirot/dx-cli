@@ -1,50 +1,66 @@
 package gitlab
 
 import (
-	"dx-cli/config"
+	"bufio"
+	"dx-cli/config" // replace with your actual config package path
 	"fmt"
 	"github.com/spf13/cobra"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
 	"strings"
 )
 
-var testGitLabConnectionCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Test SSH connection to GitLab",
-	Run: func(cmd *cobra.Command, args []string) {
-		// Fetch the current context
+var registerSSHKeyCmd = &cobra.Command{
+	Use:   "register",
+	Short: "Register an SSH key with a GitLab account",
+	RunE: func(cmd *cobra.Command, args []string) error {
 		currentContext, err := config.GetCurrentContext()
 		if err != nil {
-			fmt.Printf("Error fetching current context: %s\n", err)
-			return
+			return err
 		}
 
-		if currentContext == nil {
-			fmt.Println("No current context defined.")
-			return
-		}
-
-		if len(currentContext.GitLabContexts) == 0 {
-			fmt.Println("No GitLab definitions available.")
-			return
+		// List available GitLab definitions and prompt for selection
+		for i, glContext := range currentContext.GitLabContexts {
+			fmt.Printf("%d: %s (%s)\n", i+1, glContext.Name, glContext.Host)
 		}
 
 		fmt.Println("Select a GitLab definition:")
-		for i, glContext := range currentContext.GitLabContexts {
-			fmt.Printf("[%d] %s (%s)\n", i+1, glContext.Name, glContext.Host)
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		selection := scanner.Text()
+		selectedIndex, err := strconv.Atoi(selection)
+		if err != nil || selectedIndex < 1 || selectedIndex > len(currentContext.GitLabContexts) {
+			return fmt.Errorf("Invalid selection")
 		}
 
-		var choice int
-		fmt.Scanln(&choice)
+		selectedGLContext := currentContext.GitLabContexts[selectedIndex-1]
 
-		if choice < 1 || choice > len(currentContext.GitLabContexts) {
-			fmt.Println("Invalid choice.")
-			return
+		// Check if key exists
+		privateKeyPath := filepath.Join(os.Getenv("HOME"), ".ssh", fmt.Sprintf("id_%s_%s", currentContext.Name, selectedGLContext.Name))
+		if _, err := os.Stat(privateKeyPath); os.IsNotExist(err) {
+			return fmt.Errorf("SSH key does not exist. Please create one first.")
 		}
 
-		selectedGitLab := currentContext.GitLabContexts[choice-1]
-		cleanHost := strings.TrimSuffix(strings.TrimPrefix(selectedGitLab.Host, "https://"), "/")
-		TestSSHConnection(cleanHost)
+		// Open GitLab SSH key page
+		cleanHost := strings.TrimRight(selectedGLContext.Host, "/")
+		gitLabURL := fmt.Sprintf("%s/-/profile/keys", cleanHost)
+		err = exec.Command("open", gitLabURL).Run()
+		if err != nil {
+			return fmt.Errorf("Could not open GitLab URL: %s", err)
+		}
+
+		// Display public key content to paste
+		publicKeyPath := privateKeyPath + ".pub"
+		publicKeyContent, err := os.ReadFile(publicKeyPath)
+		if err != nil {
+			return fmt.Errorf("Could not read public key: %s", err)
+		}
+		fmt.Println("Paste the following public key into GitLab:")
+		fmt.Println(string(publicKeyContent))
+
+		return nil
 	},
 }
 
@@ -61,6 +77,5 @@ func TestSSHConnection(host string) error {
 }
 
 func init() {
-	// Assuming you have a GitLab root command like 'gitlabCmd'
-	GitlabCmd.AddCommand(testGitLabConnectionCmd)
+	GitlabCmd.AddCommand(registerSSHKeyCmd)
 }
