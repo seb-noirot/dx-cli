@@ -15,7 +15,8 @@ Hope you will enjoy it!
 
 ### Setup
 
-Once you installed Go, you can run 
+First you need to install go (and I hope it is the last thing you need to install manually)
+Look at the process on their [page](https://go.dev/doc/install) 
 
 ```go
 go run main.go
