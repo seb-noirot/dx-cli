@@ -20,6 +20,16 @@ type Context struct {
 	// Add other fields here as needed
 	GitLabContexts     []GitLabContext     `yaml:"gitlabContexts"`
 	KubernetesContexts []KubernetesContext `yaml:"k8s"`
+	MavenContext       *MavenContext       `yaml:"mvn"`
+}
+
+type MavenContext struct {
+	Settings Settings `yaml:"settings"`
+}
+
+type Settings struct {
+	Content string   `yaml:"content"`
+	Tokens  []string `yaml:"tokens"`
 }
 
 type KubernetesContext struct {

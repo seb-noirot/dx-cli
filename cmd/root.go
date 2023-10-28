@@ -9,6 +9,7 @@ import (
 	"dx-cli/git"
 	"dx-cli/gitlab"
 	"dx-cli/k8s"
+	"dx-cli/maven"
 	"dx-cli/sdkman"
 	"github.com/spf13/cobra"
 	"os"
@@ -54,4 +55,5 @@ func init() {
 	rootCmd.AddCommand(gitlab.GitlabCmd)
 	rootCmd.AddCommand(git.GitCmd)
 	rootCmd.AddCommand(k8s.KubeCmd)
+	rootCmd.AddCommand(maven.MavenCmd)
 }
