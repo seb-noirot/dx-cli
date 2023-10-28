@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -53,7 +54,7 @@ func setupMavenSettings(mavenContext *config.MavenContext) error {
 	for _, token := range mavenContext.Settings.Tokens {
 		// Assuming you have some way to resolve these tokens to actual values
 		replacement := resolveToken(token)
-		content = strings.ReplaceAll(content, fmt.Sprintf("{{%s}}", token), replacement)
+		content = strings.ReplaceAll(content, fmt.Sprintf("{{%s}}", token.Name), replacement)
 	}
 
 	// Write the settings to the file
@@ -65,8 +66,23 @@ func setupMavenSettings(mavenContext *config.MavenContext) error {
 	return nil
 }
 
-func resolveToken(token string) string {
-	fmt.Printf("Enter the value for token %s: ", token)
+func resolveToken(token config.Token) string {
+	fmt.Printf("Token: %s\n", token.Name)
+	if token.Description != nil {
+		fmt.Printf("Description: %s\n", *token.Description)
+	}
+	if token.Link != nil {
+		fmt.Println("Do you want to open the link for more info? [y/n]")
+		var openLink string
+		fmt.Scanln(&openLink)
+		if openLink == "y" || openLink == "Y" {
+			err := exec.Command("open", *token.Link).Start()
+			if err != nil {
+				fmt.Printf("Failed to open link: %s\n", err)
+			}
+		}
+	}
+	fmt.Printf("Enter the value for token %s: ", token.Name)
 	var value string
 	fmt.Scanln(&value)
 	return value

@@ -28,8 +28,14 @@ type MavenContext struct {
 }
 
 type Settings struct {
-	Content string   `yaml:"content"`
-	Tokens  []string `yaml:"tokens"`
+	Content string  `yaml:"content"`
+	Tokens  []Token `yaml:"tokens"`
+}
+
+type Token struct {
+	Name        string  `yaml:"name"`
+	Description *string `yaml:"description"`
+	Link        *string `yaml:"link"`
 }
 
 type KubernetesContext struct {
