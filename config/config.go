@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"os"
 )
@@ -17,12 +18,30 @@ type Config struct {
 type Context struct {
 	Name string `yaml:"name"` // Placeholder field
 	// Add other fields here as needed
-	GitLabContexts []GitLabContext `yaml:"gitlabContexts"`
+	GitLabContexts     []GitLabContext     `yaml:"gitlabContexts"`
+	KubernetesContexts []KubernetesContext `yaml:"k8s"`
+}
+
+type KubernetesContext struct {
+	ClusterName string `yaml:"name"`
+	Certificate string `yaml:"certificate"`
+	ADUser      string `yaml:"ad_user"`
+	ServerId    string `yaml:"server_id"`
+	ClientId    string `yaml:"client_id"`
+	TenantId    string `yaml:"tenant_id"`
 }
 
 type GitLabContext struct {
-	Name string `yaml:"name"`
-	Host string `yaml:"host"`
+	Name         string        `yaml:"name"`
+	Host         string        `yaml:"host"`
+	GitlabStacks []GitlabStack `yaml:"stacks"`
+}
+
+type GitlabStack struct {
+	Name     string   `yaml:"name"`
+	Path     string   `yaml:"path"`
+	Projects []string `yaml:"projects"`
+	Javas    []string `yaml:"javas"`
 }
 
 // GetCurrentContext reads the YAML file and returns the current Context object
@@ -30,6 +49,7 @@ func GetCurrentContext() (*Context, error) {
 	// Read the YAML file
 	data, err := os.ReadFile(ConfigFilePath)
 	if err != nil {
+		fmt.Printf("Not config files")
 		return nil, err
 	}
 
@@ -37,6 +57,7 @@ func GetCurrentContext() (*Context, error) {
 	var cfg Config
 	err = yaml.Unmarshal(data, &cfg)
 	if err != nil {
+		fmt.Printf("Error getting config files. Check structure: %s", err)
 		return nil, err
 	}
 
