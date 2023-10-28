@@ -6,6 +6,7 @@ package cmd
 import (
 	"dx-cli/context"
 	"dx-cli/docker"
+	"dx-cli/git"
 	"dx-cli/gitlab"
 	"dx-cli/sdkman"
 	"github.com/spf13/cobra"
@@ -50,4 +51,5 @@ func init() {
 	rootCmd.AddCommand(docker.DockerCmd)
 	rootCmd.AddCommand(sdkman.SdkmanCmd)
 	rootCmd.AddCommand(gitlab.GitlabCmd)
+	rootCmd.AddCommand(git.GitCmd)
 }
