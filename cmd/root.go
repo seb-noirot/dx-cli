@@ -8,6 +8,7 @@ import (
 	"dx-cli/docker"
 	"dx-cli/git"
 	"dx-cli/gitlab"
+	"dx-cli/ide"
 	"dx-cli/k8s"
 	"dx-cli/maven"
 	"dx-cli/sdkman"
@@ -56,4 +57,5 @@ func init() {
 	rootCmd.AddCommand(git.GitCmd)
 	rootCmd.AddCommand(k8s.KubeCmd)
 	rootCmd.AddCommand(maven.MavenCmd)
+	rootCmd.AddCommand(ide.IdeCmd)
 }
