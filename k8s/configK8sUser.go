@@ -62,7 +62,7 @@ func UpdateKubeConfigWithADUser(k8sContext *config.KubernetesContext) error {
 					k8sContext.TenantId,
 				},
 				Command: "kubelogin",
-				Env:     "",
+				Env:     nil,
 			},
 		},
 	}

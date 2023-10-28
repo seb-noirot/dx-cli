@@ -16,8 +16,8 @@ type Cluster struct {
 }
 
 type ClusterAttributes struct {
-	CertificateAuthority string `yaml:"certificate-authority"`
-	Server               string `yaml:"server"`
+	CertificateAuthorityData string `yaml:"certificate-authority-data"`
+	Server                   string `yaml:"server"`
 }
 
 type Context struct {
@@ -46,5 +46,5 @@ type UserSpecExec struct {
 	ApiVersion string   `yaml:"apiVersion"`
 	Args       []string `yaml:"args"`
 	Command    string   `yaml:"command"`
-	Env        string   `yaml:"env"`
+	Env        *string  `yaml:"env"`
 }
