@@ -9,17 +9,40 @@ import (
 
 var listStacksCmd = &cobra.Command{
 	Use:   "list",
-	Short: "Lists all GitLab stacks for the current context",
+	Short: "📋👀 Lists all GitLab stacks for the current context",
+	Long:  "📋🔍 Use this command to display all the GitLab stacks defined in your current context. Ideal for a quick overview and management. 🕵️‍♂️👌",
 	Run: func(cmd *cobra.Command, args []string) {
-		currentContext, _ := utils.GetCurrentContext(config.ConfigFilePath, false)
+		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+		if err != nil {
+			utils.LogError("❌ Error fetching current context: %s", err)
+			return
+		}
+
+		if currentContext == nil {
+			utils.LogInfo("⚠️ No current context defined.")
+			return
+		}
+
+		if len(currentContext.GitLabContexts) == 0 {
+			utils.LogInfo("⚠️ No GitLab definitions available.")
+			return
+		}
+
+		utils.LogInfo("👇 Available GitLab Stacks:")
 		for _, gitlabContext := range currentContext.GitLabContexts {
-			fmt.Println("GitLab Context:", gitlabContext.Name)
+			utils.LogInfo(fmt.Sprintf("🔹 GitLab Context: %s", gitlabContext.Name))
 			for _, stack := range gitlabContext.GitlabStacks {
-				fmt.Println("  Stack:", stack.Name)
-				fmt.Println("  Path:", stack.Path)
-				fmt.Println("  Projects:", stack.Projects)
+				utils.LogInfo(fmt.Sprintf("  📦 Stack: %s", stack.Name))
+				utils.LogInfo(fmt.Sprintf("  📍 Path: %s", stack.Path))
+
+				projectList := "  📚 Projects:"
+				for _, project := range stack.Projects {
+					projectList += fmt.Sprintf("\n    • %s", project)
+				}
+				utils.LogInfo(projectList)
 			}
 		}
+
 	},
 }
 

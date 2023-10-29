@@ -10,56 +10,48 @@ import (
 var installJavaCmd = &cobra.Command{
 	Use:   "java",
 	Short: "Install java for the stack",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		selectedGitLab, err := utils.SelectGitlabDefinition()
 		if err != nil {
-			return
+			utils.LogInfo("Error selecting GitLab definition.")
+			return err
 		}
 		if selectedGitLab == nil {
-			return
+			utils.LogInfo("No GitLab definition selected.")
+			return nil
 		}
 
-		// List stacks and ask for selection
 		if len(selectedGitLab.GitlabStacks) == 0 {
-			fmt.Println("No stacks defined.")
-			return
+			utils.LogInfo("⚠️  No stacks defined.")
+			return nil
 		}
 
-		fmt.Println("Select a gitlabstack to install:")
-		for i, stack := range selectedGitLab.GitlabStacks {
-			fmt.Printf("[%d] %s\n", i+1, stack.Name)
+		selectedStack, err := utils.SelectGitlabStack(selectedGitLab)
+		if err != nil {
+			return err
+		}
+		if selectedStack == nil {
+			return nil
 		}
 
-		var choice int
-		fmt.Scanln(&choice)
-		if choice < 1 || choice > len(selectedGitLab.GitlabStacks) {
-			fmt.Println("Invalid choice.")
-			return
-		}
-
-		selectedStack := selectedGitLab.GitlabStacks[choice-1]
-
-		// Check if a Java version is defined for the selected stack
 		if len(selectedStack.Javas) == 0 {
-			fmt.Println("No Java versions defined for this stack.")
-			return
+			utils.LogInfo("⚠️  No Java versions defined for this stack.")
+			return nil
 		}
 
 		for _, javaVersion := range selectedStack.Javas {
-			// Install Java using SDKMAN
-			fmt.Printf("Installing Java version %s using SDKMAN...\n", javaVersion)
+			utils.LogInfo(fmt.Sprintf("☕ Installing Java version %s using SDKMAN...", javaVersion))
 
 			cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("source $HOME/.sdkman/bin/sdkman-init.sh && sdk install java %s", javaVersion))
 			err = cmd.Run()
 			if err != nil {
-				fmt.Printf("Failed to install Java version %s: %s\n", javaVersion, err)
-				return
+				utils.LogInfo(fmt.Sprintf("❌ Failed to install Java version %s: %s", javaVersion, err))
+				return err
 			}
 
-			fmt.Printf("Successfully installed Java version %s.\n", javaVersion)
+			utils.LogInfo(fmt.Sprintf("✅ Successfully installed Java version %s.", javaVersion))
 		}
-
-		return
+		return nil
 	},
 }
 
