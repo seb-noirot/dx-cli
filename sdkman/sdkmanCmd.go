@@ -1,7 +1,9 @@
 package sdkman
 
 import (
+	"dx-cli/utils"
 	"fmt"
+	"github.com/AlecAivazis/survey/v2"
 	"os"
 	"os/exec"
 
@@ -17,52 +19,54 @@ var SdkmanCmd = &cobra.Command{
 }
 
 func checkSdkman() {
+	utils.Println(true, "🔍 Checking for SDKMAN installation...")
 	_, err := exec.Command("bash", "-c", "source $HOME/.sdkman/bin/sdkman-init.sh && sdk version").Output()
 
 	if err != nil {
-		fmt.Println("SDKMAN is not installed. Would you like to install it? (y/n)")
+		var install bool
+		prompt := &survey.Confirm{
+			Message: "❗ SDKMAN is not installed. Would you like to install it?",
+		}
+		survey.AskOne(prompt, &install)
 
-		var input string
-		fmt.Scanln(&input)
-
-		if input == "y" || input == "Y" {
+		if install {
 			installSdkman()
 		} else {
-			fmt.Println("To install SDKMAN manually, visit: https://sdkman.io/install")
+			utils.Println(true, "🔗 To install SDKMAN manually, visit: https://sdkman.io/install")
 		}
 		return
 	}
 
-	fmt.Println("SDKMAN is installed.")
+	utils.Println(true, "✅ SDKMAN is already installed.")
 }
 
 func installSdkman() {
-	// Logic to install SDKMAN
-	fmt.Println("Installing SDKMAN...")
+	utils.Println(true, "📦 Installing SDKMAN...")
 
-	// SDKMAN installation typically involves a curl command
 	_, err := exec.Command("bash", "-c", "curl -s \"https://get.sdkman.io\" | bash").Output()
 	if err != nil {
-		fmt.Println("Failed to install SDKMAN: ", err)
+		utils.Println(true, "🚨 Failed to install SDKMAN: %v\n", err)
 		return
 	}
 
-	// Source bash profile to complete the installation
 	_, err = exec.Command("bash", "-c", "source \"$HOME/.sdkman/bin/sdkman-init.sh\"").Output()
 	if err != nil {
-		fmt.Println("Failed to source bash profile: ", err)
+		utils.Println(true, "🚨 Failed to source bash profile: %v\n", err)
 		return
 	}
 
-	fmt.Println("SDKMAN installed successfully.")
+	utils.Println(true, "✅ SDKMAN installed successfully.")
+	addToZshrc()
 }
 
 func addToZshrc() {
+	utils.Println(true, "📝 Adding SDKMAN initialization to .zshrc...")
+
 	zshrcPath := fmt.Sprintf("%s/.zshrc", os.Getenv("HOME"))
 	file, err := os.OpenFile(zshrcPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
-		fmt.Printf("Failed to open or create .zshrc. Error: %v\n", err)
+		fmt.Printf("🚨 Failed to open or create .zshrc. Error: %v\n", err)
 		return
 	}
 	defer file.Close()
@@ -73,9 +77,9 @@ export SDKMAN_DIR="$HOME/.sdkman"
 `
 
 	if _, err := file.WriteString(lines); err != nil {
-		fmt.Printf("Failed to write to .zshrc. Error: %v\n", err)
+		fmt.Printf("🚨 Failed to write to .zshrc. Error: %v\n", err)
 		return
 	}
 
-	fmt.Println("Added SDKMAN initialization to .zshrc")
+	utils.Println(true, "✅ Added SDKMAN initialization to .zshrc")
 }
