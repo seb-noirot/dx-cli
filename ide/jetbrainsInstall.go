@@ -1,38 +1,39 @@
 package ide
 
 import (
-	"fmt"
+	"dx-cli/utils"
 	"github.com/spf13/cobra"
 	"os/exec"
 )
 
 var installJetbrains = &cobra.Command{
 	Use:   "jetbrains",
-	Short: "Installs jetbrains",
+	Short: "Installs JetBrains Toolbox 🛠️",
+	Long:  "Installs or updates the JetBrains Toolbox, the gateway to all JetBrains IDEs 🌈",
 	Run: func(cmd *cobra.Command, args []string) {
-		installJetBrainsToolbox()
+		err := exec.Command("open", "-a", "JetBrains Toolbox").Run()
+		if err != nil {
+			installJetBrainsToolbox()
+		} else {
+			utils.LogInfo("JetBrains Toolbox is already installed. 👍")
+		}
+
 	},
 }
 
 // InstallJetBrainsToolbox installs JetBrains Toolbox if not already installed
 func installJetBrainsToolbox() {
-	// Check if JetBrains Toolbox is already installed
-	err := exec.Command("open", "-a", "JetBrains Toolbox").Run()
-
-	if err != nil {
-		fmt.Println("JetBrains Toolbox is not installed. Installing...")
-
+	if utils.PromptUser("Would you like to proceed with the installation of JetBrains Toolbox? 🤔", []string{"Yes", "No"}) == "Yes" {
 		// Install JetBrains Toolbox using Homebrew Cask
-		err = exec.Command("brew", "install", "--cask", "jetbrains-toolbox").Run()
+		err := exec.Command("brew", "install", "--cask", "jetbrains-toolbox").Run()
 
 		if err != nil {
-			fmt.Printf("Failed to install JetBrains Toolbox: %s\n", err)
+			utils.LogError("Failed to install JetBrains Toolbox: 😢", err)
 		} else {
-			fmt.Println("JetBrains Toolbox installed successfully.")
+			utils.LogInfo("JetBrains Toolbox installed successfully. 🎉")
 		}
-
 	} else {
-		fmt.Println("JetBrains Toolbox is already installed.")
+		utils.LogInfo("Installation aborted by the user. 🚫")
 	}
 }
 
