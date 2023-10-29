@@ -19,13 +19,14 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "dx-cli",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Welcome to DevBot 🤖: Your Developer Experience Enhancer!",
+	Long: `Hey there, Developer! 👋
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Meet DevBot 🤖, designed to elevate your developer experience with us!
+From setting up essential tools 🛠️ to configuring your workspace 🌌,
+DevBot has got your back.
+
+Follow along and let's get you up and running in no time! 🚀`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

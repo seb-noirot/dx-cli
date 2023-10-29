@@ -12,7 +12,12 @@ import (
 // Define a command to list contexts
 var listContextsCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all contexts",
+	Short: "Roll Call! 📜",
+	Long: `Wondering about your available choices? 🤔
+
+The 'list' command showcases all the contexts you've set up. It's your command-line directory! 📚
+
+Scroll through your options and take your pick! 🎯`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Read YAML file
 		data, err := os.ReadFile(config.ConfigFilePath)

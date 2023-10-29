@@ -11,8 +11,14 @@ import (
 
 var createContextCmd = &cobra.Command{
 	Use:   "create [name]",
-	Short: "Create a new context",
-	Args:  cobra.ExactArgs(1),
+	Short: "Spawn a New Context in a Flash ⚡",
+	Long: `Say hello to your new playground! 🎉
+
+Use 'create [name]' to set up a new context that houses all your project-specific configurations.
+Just give it a name, and you're ready to configure away! 🛠
+
+Start building your perfect environment now! 🌈`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		data, err := os.ReadFile(config.ConfigFilePath)
 		if err != nil {

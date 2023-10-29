@@ -11,7 +11,12 @@ import (
 
 var getCurrentContextCmd = &cobra.Command{
 	Use:   "current",
-	Short: "Get the current context",
+	Short: "Show Your Active Playground 🌟",
+	Long: `Curious where you are? 🤔
+
+The 'current' command reveals the context you're currently working in. Think of it as your command-line GPS! 🗺
+
+Stay oriented and keep sailing smoothly! 🚀`,
 	Run: func(cmd *cobra.Command, args []string) {
 		data, err := os.ReadFile(config.ConfigFilePath)
 		if err != nil {

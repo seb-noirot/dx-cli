@@ -11,8 +11,13 @@ import (
 
 var deleteContextCmd = &cobra.Command{
 	Use:   "delete [name]",
-	Short: "Delete a context",
-	Args:  cobra.ExactArgs(1),
+	Short: "Banish from the Kingdom 🚫🏰",
+	Long: `Oops, made a wrong choice? No worries! 🙌
+
+Use 'delete' to remove a context you no longer need. Think of it as banishing it from your kingdom, making way for new possibilities and cleaner config. 🗑️
+
+Gone but not forgotten! 😢`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		data, err := os.ReadFile(config.ConfigFilePath)
 		if err != nil {
