@@ -51,13 +51,13 @@ func installSdkman() {
 
 	_, err := exec.Command("bash", "-c", "curl -s \"https://get.sdkman.io\" | bash").Output()
 	if err != nil {
-		utils.Println(true, "🚨 Failed to install SDKMAN: %v\n", err)
+		utils.Printf(true, "🚨 Failed to install SDKMAN: %v\n", err)
 		return
 	}
 
 	_, err = exec.Command("bash", "-c", "source \"$HOME/.sdkman/bin/sdkman-init.sh\"").Output()
 	if err != nil {
-		utils.Println(true, "🚨 Failed to source bash profile: %v\n", err)
+		utils.Printf(true, "🚨 Failed to source bash profile: %v\n", err)
 		return
 	}
 
