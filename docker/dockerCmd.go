@@ -1,17 +1,22 @@
 package docker
 
 import (
-	"fmt"
+	"dx-cli/utils" // Import your utils package
+	"github.com/spf13/cobra"
 	"os/exec"
 	"runtime"
 	"strings"
-
-	"github.com/spf13/cobra"
 )
 
 var DockerCmd = &cobra.Command{
 	Use:   "docker",
-	Short: "Manage Docker",
+	Short: "Be the Captain of Your Container Ship 🚢",
+	Long: `Want to manage containers like a seasoned sailor? 🌊
+
+With Docker, you'll be at the helm, steering your containerized applications with ease. 🚢
+From installing Docker to managing your daemons, this command has you covered.
+
+Full speed ahead, Captain! 🌟`,
 	Run: func(cmd *cobra.Command, args []string) {
 		checkDocker()
 	},
@@ -21,37 +26,40 @@ func checkDocker() {
 	out, err := exec.Command("docker", "--version").Output()
 
 	if err != nil {
-		fmt.Println("Docker is not installed. Would you like to install it? (y/n)")
-		fmt.Println("To install Docker manually, visit: https://docs.docker.com/get-docker/")
+		if utils.PromptUser("Docker is not installed. Would you like to install it? 🐳", []string{"Yes", "No"}) == "Yes" {
+			utils.Println(true, "To install Docker manually, check out 👉 https://docs.docker.com/get-docker/")
+		}
 		return
 	}
 
-	fmt.Println("Docker installed: ", strings.TrimSpace(string(out)))
+	utils.Println(true, "🐳 Docker installed: ", strings.TrimSpace(string(out)))
 
 	// Check if the Docker daemon is running
 	_, err = exec.Command("docker", "info").Output()
 	if err != nil {
-		fmt.Println("Docker daemon is not running.")
-
-		switch runtime.GOOS {
-		case "linux":
-			fmt.Println("Starting Docker daemon...")
-			_, err := exec.Command("sudo", "systemctl", "start", "docker").Output()
-			if err != nil {
-				fmt.Println("Failed to start Docker daemon: ", err)
-				return
-			}
-			fmt.Println("Docker daemon started.")
-		case "darwin":
-			fmt.Println("Starting Docker Desktop...")
-			_, err := exec.Command("open", "/Applications/Docker.app").Output()
-			if err != nil {
-				fmt.Println("Failed to start Docker Desktop: ", err)
-				return
-			}
-			fmt.Println("Docker Desktop started.")
-		default:
-			fmt.Println("Please start the Docker daemon manually.")
-		}
+		utils.Println(true, "⚠️ Docker daemon is not running.")
+		handleDaemonStart()
 	}
+}
+
+func handleDaemonStart() {
+	switch runtime.GOOS {
+	case "linux":
+		utils.Println(true, "🚀 Attempting to start Docker daemon...")
+		executeAndLog("sudo", []string{"systemctl", "start", "docker"}, "🚀 Docker daemon started.", "❌ Failed to start Docker daemon.")
+	case "darwin":
+		utils.Println(true, "🍏 Attempting to start Docker Desktop...")
+		executeAndLog("open", []string{"/Applications/Docker.app"}, "🍏 Docker Desktop started.", "❌ Failed to start Docker Desktop.")
+	default:
+		utils.Println(true, "❌ Please start the Docker daemon manually.")
+	}
+}
+
+func executeAndLog(command string, args []string, successMsg string, errorMsg string) {
+	_, err := exec.Command(command, args...).Output()
+	if err != nil {
+		utils.Println(true, errorMsg, err)
+		return
+	}
+	utils.Println(true, successMsg)
 }
