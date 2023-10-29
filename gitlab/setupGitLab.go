@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"dx-cli/utils"
 	"fmt"
 	"os"
 	"os/exec"
@@ -17,7 +18,7 @@ var setupGitLabCmd = &cobra.Command{
 	Short: "Setup a GitLab definition",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Fetch the current context
-		currentContext, err := config.GetCurrentContext()
+		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
 		if err != nil {
 			fmt.Printf("Error fetching current context: %s\n", err)
 			return

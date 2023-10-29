@@ -7,7 +7,7 @@ import (
 
 func SelectGitlabDefinition() (*config.GitLabContext, error) {
 	// Fetch the current context
-	currentContext, err := config.GetCurrentContext()
+	currentContext, err := GetCurrentContext(config.ConfigFilePath, false)
 	if err != nil {
 		fmt.Printf("Error fetching current context: %s\n", err)
 		return nil, nil

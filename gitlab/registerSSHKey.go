@@ -3,6 +3,7 @@ package gitlab
 import (
 	"bufio"
 	"dx-cli/config" // replace with your actual config package path
+	"dx-cli/utils"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
@@ -16,7 +17,7 @@ var registerSSHKeyCmd = &cobra.Command{
 	Use:   "register",
 	Short: "Register an SSH key with a GitLab account",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		currentContext, err := config.GetCurrentContext()
+		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
 		if err != nil {
 			return err
 		}

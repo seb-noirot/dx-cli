@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-	"github.com/AlecAivazis/survey/v2"
 	"gopkg.in/yaml.v2"
 	"os"
 )
@@ -59,64 +57,6 @@ type GitlabStack struct {
 	Path     string   `yaml:"path"`
 	Projects []string `yaml:"projects"`
 	Javas    []string `yaml:"javas"`
-}
-
-// GetCurrentContext reads the YAML file and returns the current Context object
-func GetCurrentContext() (*Context, error) {
-	fmt.Println("🤖 Loading config file...")
-
-	// Read the YAML file
-	data, err := os.ReadFile(ConfigFilePath)
-	if err != nil {
-		fmt.Printf("🚨 Oops! No config files found.\n")
-		return nil, err
-	}
-
-	fmt.Println("✅ Config file loaded.")
-
-	// Unmarshal into Config struct
-	var cfg Config
-	err = yaml.Unmarshal(data, &cfg)
-	if err != nil {
-		fmt.Printf("🚨 Oops! Error parsing the config file: %s\n", err)
-		return nil, err
-	}
-
-	fmt.Println("📋 Parsing contexts...")
-
-	// Create a list of context names
-	var contextNames []string
-	for _, ctx := range cfg.Contexts {
-		contextNames = append(contextNames, ctx.Name)
-	}
-
-	fmt.Println("✅ Contexts parsed.")
-
-	// Use survey to get user's choice
-	var selectedContextName string
-	prompt := &survey.Select{
-		Message: "🌍 Choose a context:",
-		Options: contextNames,
-	}
-	fmt.Println("🤖 Awaiting your selection...")
-	err = survey.AskOne(prompt, &selectedContextName)
-	if err != nil {
-		fmt.Println("🚨 Oops! Something went wrong.")
-		return nil, err
-	}
-
-	fmt.Printf("🎉 You've chosen: %s\n", selectedContextName)
-
-	// Find and return the selected context
-	for _, ctx := range cfg.Contexts {
-		if ctx.Name == selectedContextName {
-			fmt.Println("✅ Context successfully set.")
-			return &ctx, nil
-		}
-	}
-
-	fmt.Println("🚨 Oops! Selected context not found.")
-	return nil, nil // or return an error if context is not found
 }
 
 func UpdateCurrentContext(updatedContext *Context) error {

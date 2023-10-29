@@ -30,3 +30,30 @@ func LoadConfig(configFilePath string, verbose bool) (config.Config, error) {
 
 	return conf, nil
 }
+
+func GetCurrentContext(configFilePath string, verbose bool) (*config.Context, error) {
+
+	cfg, err := LoadConfig(config.ConfigFilePath, verbose)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg.CurrentContext == "" {
+		Println(true, "🚫 No current context defined.")
+		return nil, fmt.Errorf("no current context defined")
+	}
+
+	Println(verbose, "📋 Locating current context...")
+
+	// Find and return the current context
+	for _, ctx := range cfg.Contexts {
+		if ctx.Name == cfg.CurrentContext {
+			Println(verbose, "✅ Current context fetched successfully.")
+			return &ctx, nil
+		}
+	}
+
+	Println(true, "🚨 Oops! Current context not found.")
+	return nil, fmt.Errorf("current context not found")
+}
