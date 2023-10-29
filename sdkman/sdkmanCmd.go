@@ -12,7 +12,13 @@ import (
 
 var SdkmanCmd = &cobra.Command{
 	Use:   "sdkman",
-	Short: "Manage SDKMAN",
+	Short: "Your SDK Guardian Angel 👼",
+	Long: `Ever feel like you're drowning in a sea of SDK versions? 🌊
+
+No worries, the 'sdkman' command is here to keep you afloat! 🚢
+From installing to updating, and even switching between SDK versions, sdkman makes it a breeze.
+
+Think of it as your personal SDK concierge, always at your service. 🛎️`,
 	Run: func(cmd *cobra.Command, args []string) {
 		checkSdkman()
 	},
