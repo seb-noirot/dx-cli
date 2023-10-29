@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"dx-cli/utils"
 	"fmt"
 	"os/exec"
 
@@ -9,8 +10,8 @@ import (
 
 var setupToolsCmd = &cobra.Command{
 	Use:   "setup",
-	Short: "Install essential Kubernetes tools",
-	Long:  `This command will install essential Kubernetes tools on macOS.`,
+	Short: "🛠️ Gear Up Your K8s Environment!",
+	Long:  `🎉 This command installs the essential Kubernetes tools on macOS, making your Kubernetes experience hassle-free.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		installTools()
 	},
@@ -18,6 +19,16 @@ var setupToolsCmd = &cobra.Command{
 
 func init() {
 	KubeCmd.AddCommand(setupToolsCmd)
+}
+
+func installTool(tool string) error {
+	utils.Printf(true, "🔨 Installing %s...\n", tool)
+	installCmd := exec.Command("brew", "install", tool)
+	if err := installCmd.Run(); err != nil {
+		return fmt.Errorf("failed to install %s: %s", tool, err)
+	}
+	utils.Printf(true, "🎉 Successfully installed %s.\n", tool)
+	return nil
 }
 
 func installTools() {
@@ -30,21 +41,22 @@ func installTools() {
 	}
 
 	for _, tool := range tools {
+		utils.Printf(true, "🔍 Checking %s...\n", tool)
+
 		// Check if tool is already installed
 		checkCmd := exec.Command("brew", "list", "--formula", tool)
 		if err := checkCmd.Run(); err == nil {
-			fmt.Printf("%s is already installed, skipping.\n", tool)
+			utils.Printf(true, "✅ %s is already installed\n", tool)
 			continue
 		}
 
-		// Attempt to install the tool
-		fmt.Printf("Installing %s...\n", tool)
-		installCmd := exec.Command("brew", "install", tool)
-		if err := installCmd.Run(); err != nil {
-			fmt.Printf("Failed to install %s: %s\n", tool, err)
-			fmt.Printf("Please run it manually: brew install %s\n", tool)
+		if utils.PromptUser(fmt.Sprintf("🛠️ Install %s?", tool), []string{"Yes", "No"}) == "Yes" {
+			if err := installTool(tool); err != nil {
+				utils.Printf(true, "🚨 %s\n", err.Error())
+				utils.Printf(true, "🚀 Please run it manually: brew install %s\n", tool)
+			}
 		} else {
-			fmt.Printf("Successfully installed %s.\n", tool)
+			utils.Printf(true, "🛑 Skipping installation of %s.\n", tool)
 		}
 	}
 }
