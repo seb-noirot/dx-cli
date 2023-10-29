@@ -1,7 +1,6 @@
 package gitlab
 
 import (
-	"bufio"
 	"dx-cli/config" // replace with your actual config package path
 	"dx-cli/utils"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -19,46 +17,58 @@ var registerSSHKeyCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
 		if err != nil {
+			utils.LogError("Error fetching current context: %s", err)
+			return nil
+		}
+
+		// Validate current context
+		if currentContext == nil {
+			utils.LogWarning("No current context defined.")
+			return nil
+		}
+
+		if len(currentContext.GitLabContexts) == 0 {
+			utils.LogWarning("No GitLab definitions available.")
+			return nil
+		}
+
+		// Select GitLab instance
+		selectedContext, err := utils.SelectGitlabDefinition()
+		if err != nil {
+			utils.LogError("Error fetching gitlab context: %s", err)
+			return nil
+		}
+
+		// Validate current context
+		if selectedContext == nil {
+			utils.LogWarning("No gitlab context defined.")
+			return nil
+		}
+
+		// Check if key exists
+		privateKeyPath := filepath.Join(os.Getenv("HOME"), ".ssh", fmt.Sprintf("id_%s_%s", currentContext.Name, selectedContext.Name))
+		if _, err := os.Stat(privateKeyPath); os.IsNotExist(err) {
+			utils.LogError("SSH key does not exist. Please create one first.", err)
 			return err
 		}
 
-		// List available GitLab definitions and prompt for selection
-		for i, glContext := range currentContext.GitLabContexts {
-			fmt.Printf("%d: %s (%s)\n", i+1, glContext.Name, glContext.Host)
-		}
-
-		fmt.Println("Select a GitLab definition:")
-		scanner := bufio.NewScanner(os.Stdin)
-		scanner.Scan()
-		selection := scanner.Text()
-		selectedIndex, err := strconv.Atoi(selection)
-		if err != nil || selectedIndex < 1 || selectedIndex > len(currentContext.GitLabContexts) {
-			return fmt.Errorf("Invalid selection")
-		}
-
-		selectedGLContext := currentContext.GitLabContexts[selectedIndex-1]
-
-		// Check if key exists
-		privateKeyPath := filepath.Join(os.Getenv("HOME"), ".ssh", fmt.Sprintf("id_%s_%s", currentContext.Name, selectedGLContext.Name))
-		if _, err := os.Stat(privateKeyPath); os.IsNotExist(err) {
-			return fmt.Errorf("SSH key does not exist. Please create one first.")
-		}
-
 		// Open GitLab SSH key page
-		cleanHost := strings.TrimRight(selectedGLContext.Host, "/")
+		cleanHost := strings.TrimRight(selectedContext.Host, "/")
 		gitLabURL := fmt.Sprintf("%s/-/profile/keys", cleanHost)
 		err = exec.Command("open", gitLabURL).Run()
 		if err != nil {
-			return fmt.Errorf("Could not open GitLab URL: %s", err)
+			utils.LogError("Could not open GitLab URL: %s", err)
+			return err
 		}
 
 		// Display public key content to paste
 		publicKeyPath := privateKeyPath + ".pub"
 		publicKeyContent, err := os.ReadFile(publicKeyPath)
 		if err != nil {
-			return fmt.Errorf("Could not read public key: %s", err)
+			utils.LogError("Could not read public key: %s", err)
+			return err
 		}
-		fmt.Println("Paste the following public key into GitLab:")
+		utils.LogInfo("Paste the following public key into GitLab:")
 		fmt.Println(string(publicKeyContent))
 
 		return nil

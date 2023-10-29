@@ -1,7 +1,6 @@
 package gitlab
 
 import (
-	"dx-cli/config"
 	"dx-cli/utils"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -13,39 +12,24 @@ var testGitLabConnectionCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Test SSH connection to GitLab",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Fetch the current context
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+		selectedGitLab, err := utils.SelectGitlabDefinition()
 		if err != nil {
-			fmt.Printf("Error fetching current context: %s\n", err)
+			utils.LogError("Error fetching GitLab context", err)
 			return
 		}
 
-		if currentContext == nil {
-			fmt.Println("No current context defined.")
+		if selectedGitLab == nil {
+			utils.LogWarning("No valid GitLab definition selected.")
 			return
 		}
 
-		if len(currentContext.GitLabContexts) == 0 {
-			fmt.Println("No GitLab definitions available.")
-			return
-		}
-
-		fmt.Println("Select a GitLab definition:")
-		for i, glContext := range currentContext.GitLabContexts {
-			fmt.Printf("[%d] %s (%s)\n", i+1, glContext.Name, glContext.Host)
-		}
-
-		var choice int
-		fmt.Scanln(&choice)
-
-		if choice < 1 || choice > len(currentContext.GitLabContexts) {
-			fmt.Println("Invalid choice.")
-			return
-		}
-
-		selectedGitLab := currentContext.GitLabContexts[choice-1]
 		cleanHost := strings.TrimSuffix(strings.TrimPrefix(selectedGitLab.Host, "https://"), "/")
-		TestSSHConnection(cleanHost)
+		err = TestSSHConnection(cleanHost)
+		if err != nil {
+			utils.LogError("SSH connection test failed", err)
+		} else {
+			utils.LogInfo("SSH connection test successful.")
+		}
 	},
 }
 
@@ -54,10 +38,10 @@ func TestSSHConnection(host string) error {
 	output, err := cmd.CombinedOutput()
 
 	if err != nil {
-		return fmt.Errorf("SSH connection failed: %s", err)
+		return fmt.Errorf("SSH connection failed: %s", string(output))
 	}
 
-	fmt.Println("SSH connection successful. Output:", string(output))
+	utils.LogInfo(fmt.Sprintf("SSH connection successful. Output: %s", string(output)))
 	return nil
 }
 

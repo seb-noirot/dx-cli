@@ -9,32 +9,41 @@ func SelectGitlabDefinition() (*config.GitLabContext, error) {
 	// Fetch the current context
 	currentContext, err := GetCurrentContext(config.ConfigFilePath, false)
 	if err != nil {
-		fmt.Printf("Error fetching current context: %s\n", err)
-		return nil, nil
+		LogError("Error fetching current context: %s", err)
+		return nil, err
 	}
 
 	if currentContext == nil {
-		fmt.Println("No current context defined.")
-		return nil, nil
+		LogWarning("No current context defined.")
+		return nil, fmt.Errorf("No current context defined")
 	}
 
 	if len(currentContext.GitLabContexts) == 0 {
-		fmt.Println("No GitLab definitions available.")
-		return nil, nil
+		LogWarning("No GitLab definitions available.")
+		return nil, fmt.Errorf("No GitLab definitions available")
 	}
 
-	fmt.Println("Select a GitLab definition:")
+	// Prepare names for survey
+	names := make([]string, len(currentContext.GitLabContexts))
 	for i, glContext := range currentContext.GitLabContexts {
-		fmt.Printf("[%d] %s (%s)\n", i+1, glContext.Name, glContext.Host)
+		names[i] = fmt.Sprintf("%s (%s)", glContext.Name, glContext.Host)
 	}
 
-	var choice int
-	fmt.Scanln(&choice)
-
-	if choice < 1 || choice > len(currentContext.GitLabContexts) {
-		fmt.Println("Invalid choice.")
-		return nil, nil
+	// Prompt user for selection
+	selected := PromptUser("Select a GitLab definition:", names)
+	if selected == "" {
+		LogWarning("Invalid choice.")
+		return nil, fmt.Errorf("Invalid choice")
 	}
-	selectedGitLab := currentContext.GitLabContexts[choice-1]
-	return &selectedGitLab, nil
+
+	// Find the selected context
+	var selectedGitLab *config.GitLabContext
+	LogInfo("Selected name " + selected)
+	for _, gitLabContext := range currentContext.GitLabContexts {
+		if fmt.Sprintf("%s (%s)", gitLabContext.Name, gitLabContext.Host) == selected {
+			selectedGitLab = &gitLabContext
+			break
+		}
+	}
+	return selectedGitLab, nil
 }

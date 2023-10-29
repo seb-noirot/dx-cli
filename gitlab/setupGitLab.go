@@ -15,69 +15,83 @@ import (
 // setupGitLabCmd represents the setup command
 var setupGitLabCmd = &cobra.Command{
 	Use:   "setup",
-	Short: "Setup a GitLab definition",
-	Run: func(cmd *cobra.Command, args []string) {
-		// Fetch the current context
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
-		if err != nil {
-			fmt.Printf("Error fetching current context: %s\n", err)
-			return
-		}
+	Short: "Initialize and configure a specific GitLab instance",
+	Long:  "This command sets up a selected GitLab instance by generating necessary SSH keys and updating SSH configurations.",
+	Run:   runSetupGitLab,
+}
 
-		if currentContext == nil {
-			fmt.Println("No current context defined.")
-			return
-		}
+func runSetupGitLab(cmd *cobra.Command, args []string) {
+	// Fetch current context
+	currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+	if err != nil {
+		utils.LogError("Error fetching current context: %s", err)
+		return
+	}
 
-		if len(currentContext.GitLabContexts) == 0 {
-			fmt.Println("No GitLab definitions available.")
-			return
-		}
+	// Validate current context
+	if currentContext == nil {
+		utils.LogWarning("No current context defined.")
+		return
+	}
 
-		fmt.Println("Select a GitLab definition:")
-		for i, glContext := range currentContext.GitLabContexts {
-			fmt.Printf("[%d] %s (%s)\n", i+1, glContext.Name, glContext.Host)
-		}
+	if len(currentContext.GitLabContexts) == 0 {
+		utils.LogWarning("No GitLab definitions available.")
+		return
+	}
 
-		var choice int
-		fmt.Scanln(&choice)
+	// Select GitLab instance
+	selectedContext, err := utils.SelectGitlabDefinition()
+	if err != nil {
+		utils.LogError("Error fetching gitlab context: %s", err)
+		return
+	}
 
-		if choice < 1 || choice > len(currentContext.GitLabContexts) {
-			fmt.Println("Invalid choice.")
-			return
-		}
+	// Validate current context
+	if selectedContext == nil {
+		utils.LogWarning("No gitlab context defined.")
+		return
+	}
 
-		selectedGitLab := currentContext.GitLabContexts[choice-1]
+	// Generate and manage SSH keys
+	keyName := fmt.Sprintf("id_%s_%s", currentContext.Name, selectedContext.Name)
+	err = createSSHKeys(keyName)
+	if err != nil {
+		utils.LogError("SSH Key creation failed: %s", err)
+		return
+	}
 
-		keyName := fmt.Sprintf("id_%s_%s", currentContext.Name, selectedGitLab.Name)
-		// Create SSH Key
-		createSSHKeys(keyName)
+	// Update SSH config
+	err = setupSSHConfig(selectedContext, keyName)
+	if err != nil {
+		utils.LogError("SSH config setup failed: %s", err)
+		return
+	}
 
-		// Update known_hosts
-		setupSSHConfig(selectedGitLab, keyName)
-	},
+	utils.LogInfo("GitLab setup completed.")
 }
 
 func createSSHKeys(keyName string) error {
 	privateKeyPath := filepath.Join(os.Getenv("HOME"), ".ssh", keyName)
-	if _, err := os.Stat(privateKeyPath); err == nil {
-		fmt.Println("Key already exists. Skipping key generation.")
+	_, err := os.Stat(privateKeyPath)
+	if err == nil {
+		utils.LogInfo("SSH keys already exist. Skipping key generation.")
 		return nil
-	} else if os.IsNotExist(err) {
-		cmd := exec.Command("ssh-keygen", "-t", "rsa", "-b", "4096", "-f", privateKeyPath, "-N", "")
-		err := cmd.Run()
-		if err != nil {
-			return fmt.Errorf("could not create SSH keys: %s", err)
-		}
-		fmt.Println("SSH keys created successfully.")
-	} else {
-		return fmt.Errorf("could not check for existing SSH key: %s", err)
 	}
 
+	if os.IsNotExist(err) {
+		cmd := exec.Command("ssh-keygen", "-t", "rsa", "-b", "4096", "-f", privateKeyPath, "-N", "")
+		err = cmd.Run()
+		if err != nil {
+			return fmt.Errorf("SSH key generation failed: %s", err)
+		}
+		utils.LogInfo("SSH keys created.")
+	} else {
+		return fmt.Errorf("Existing SSH key check failed: %s", err)
+	}
 	return nil
 }
 
-func setupSSHConfig(selectedGitLab config.GitLabContext, privateKeyPath string) error {
+func setupSSHConfig(selectedGitLab *config.GitLabContext, privateKeyPath string) error {
 	// Define the SSH config file path; you may want to make this configurable
 	sshConfigPath := filepath.Join(os.Getenv("HOME"), ".ssh", "config")
 

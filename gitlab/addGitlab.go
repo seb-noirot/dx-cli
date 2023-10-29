@@ -4,43 +4,34 @@ import (
 	"dx-cli/config"
 	"dx-cli/utils"
 	"fmt"
-	"strings"
-
 	"github.com/spf13/cobra"
 )
 
 // addGitLabCmd represents the add command
 var addGitLabCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add a new GitLab definition",
+	Short: "➕ Add GitLab Definition",
+	Long:  "📚 Add a new GitLab definition to the current context by specifying its name and host.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Fetch the current context
 		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
 		if err != nil {
-			fmt.Printf("Error fetching current context: %s\n", err)
+			utils.LogError("Fetching current context", err)
 			return
 		}
 
 		if currentContext == nil {
-			fmt.Println("No current context defined.")
+			utils.LogWarning("No current context defined.")
 			return
 		}
 
 		// Prompt for name and host
-		var name, host string
-		fmt.Print("Enter the name of the GitLab definition: ")
-		fmt.Scanln(&name)
-		name = strings.TrimSpace(name)
-		if name == "" {
-			fmt.Println("Name cannot be empty.")
-			return
-		}
+		name := utils.PromptUser("Enter the name of the GitLab definition", nil)
+		host := utils.PromptUser("Enter the host of the GitLab definition", nil)
 
-		fmt.Print("Enter the host of the GitLab definition: ")
-		fmt.Scanln(&host)
-		host = strings.TrimSpace(host)
-		if host == "" {
-			fmt.Println("Host cannot be empty.")
+		// Validate inputs
+		if name == "" || host == "" {
+			utils.LogWarning("Name and host cannot be empty.")
 			return
 		}
 
@@ -51,11 +42,11 @@ var addGitLabCmd = &cobra.Command{
 		// Update the current context
 		err = config.UpdateCurrentContext(currentContext)
 		if err != nil {
-			fmt.Printf("Error updating current context: %s\n", err)
+			utils.LogError("Updating current context", err)
 			return
 		}
 
-		fmt.Println("New GitLab definition added.")
+		utils.LogInfo(fmt.Sprintf("New GitLab definition '%s' added.", name))
 	},
 }
 
