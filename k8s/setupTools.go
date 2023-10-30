@@ -35,6 +35,7 @@ func installTools() {
 	tools := []string{
 		"Azure/kubelogin/kubelogin",
 		"k9s",
+		"derailed/k9s/k9s",
 		"kubectl",
 		"kubectx",
 		"kubernetes-cli",
