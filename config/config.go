@@ -20,6 +20,17 @@ type Context struct {
 	GitLabContexts     []GitLabContext     `yaml:"gitlabContexts"`
 	KubernetesContexts []KubernetesContext `yaml:"k8s"`
 	MavenContext       *MavenContext       `yaml:"mvn"`
+	Onboarding         *Onboarding         `yaml:"onboarding"`
+}
+
+type Onboarding struct {
+	OnboardingCmds []OnboardingCmd `yaml:"command"`
+}
+
+type OnboardingCmd struct {
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	Execution   string `yaml:"execution"`
 }
 
 type MavenContext struct {
