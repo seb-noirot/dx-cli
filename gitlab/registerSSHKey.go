@@ -4,6 +4,7 @@ import (
 	"dx-cli/config" // replace with your actual config package path
 	"dx-cli/utils"
 	"fmt"
+	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
@@ -68,6 +69,7 @@ var registerSSHKeyCmd = &cobra.Command{
 			utils.LogError("Could not read public key: %s", err)
 			return err
 		}
+		clipboard.WriteAll(string(publicKeyContent))
 		utils.LogInfo("Paste the following public key into GitLab:")
 		fmt.Println(string(publicKeyContent))
 
