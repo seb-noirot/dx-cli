@@ -17,6 +17,12 @@ Hope you will enjoy it!
 
 First you need to install go (and I hope it is the last thing you need to install manually)
 Look at the process on their [page](https://go.dev/doc/install) 
+Or try
+```bash
+brew install go
+```
+
+Then run this one
 
 ```go
 go run main.go
