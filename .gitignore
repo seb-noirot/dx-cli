@@ -1,3 +1,4 @@
 .idea
 contexts.yaml
 dx-cli
+*.zip

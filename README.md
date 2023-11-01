@@ -31,4 +31,14 @@ So far we have one for:
 * docker: all the docker tools to setup / start / check your docker
 * gitlab: all you need to setup you gitlab (ssh key, ssh config, key in gitlab, test the connection)
 * sdkman: helps you to install sdkman
+* k8s: helps you to install kubernetes tools and setup the connection
 * more to come...
+
+### Onboarding
+
+If you have an onboarding setup in your config with the list of command to play
+
+![img.png](documentation/img.png)
+```bash
+go run main.go onboarding
+```
