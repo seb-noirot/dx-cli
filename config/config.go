@@ -51,7 +51,6 @@ type Token struct {
 type KubernetesContext struct {
 	ClusterName string `yaml:"name"`
 	Certificate string `yaml:"certificate"`
-	ADUser      string `yaml:"ad_user"`
 	ServerId    string `yaml:"server_id"`
 	ClientId    string `yaml:"client_id"`
 	TenantId    string `yaml:"tenant_id"`

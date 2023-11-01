@@ -26,7 +26,13 @@ var configK8sUser = &cobra.Command{
 			return
 		}
 
-		if err := UpdateKubeConfigWithADUser(k8sContext); err != nil {
+		adUser := utils.PromptUser("👤  Please enter your AD User: ", nil)
+		if adUser == "" {
+			utils.LogWarning("❌  AD User cannot be empty. Exiting.")
+			return
+		}
+
+		if err := UpdateKubeConfigWithADUser(k8sContext, adUser); err != nil {
 			utils.Printf(true, "🚨 Failed to update user: %s\n", err)
 			return
 		}
@@ -35,7 +41,7 @@ var configK8sUser = &cobra.Command{
 	},
 }
 
-func UpdateKubeConfigWithADUser(k8sContext *config.KubernetesContext) error {
+func UpdateKubeConfigWithADUser(k8sContext *config.KubernetesContext, adUser string) error {
 	// Read the existing config
 	kubeConfigFile := filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	data, err := os.ReadFile(kubeConfigFile)
@@ -51,7 +57,7 @@ func UpdateKubeConfigWithADUser(k8sContext *config.KubernetesContext) error {
 
 	// Replace or add the user
 	newUser := UserEntry{
-		Name: k8sContext.ADUser,
+		Name: adUser,
 		User: UserSpec{
 			Exec: UserSpecExec{
 				ApiVersion: "client.authentication.k8s.io/v1beta1",
@@ -78,7 +84,7 @@ func UpdateKubeConfigWithADUser(k8sContext *config.KubernetesContext) error {
 		userMap[user.Name] = user
 	}
 
-	userMap[k8sContext.ADUser] = newUser
+	userMap[adUser] = newUser
 
 	// Reconstruct the Users slice from the map
 	newUsers := make([]UserEntry, 0, len(userMap))

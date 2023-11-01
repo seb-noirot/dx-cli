@@ -30,15 +30,20 @@ func configureCluster() {
 		return
 	}
 
-	if err := executeClusterCommands(k8sContext); err != nil {
+	adUser := utils.PromptUser("👤  Please enter your AD User: ", nil)
+	if adUser == "" {
+		utils.LogWarning("❌  AD User cannot be empty. Exiting.")
+		return
+	}
+
+	if err := executeClusterCommands(k8sContext, adUser); err != nil {
 		utils.Printf(true, "🚨 %s\n", err.Error())
 	}
 }
 
-func executeClusterCommands(k8sContext *config.KubernetesContext) error { // Replace YourK8sContextType with the actual type
+func executeClusterCommands(k8sContext *config.KubernetesContext, adUser string) error { // Replace YourK8sContextType with the actual type
 	clusterName := k8sContext.ClusterName
 	certificate := k8sContext.Certificate
-	adUser := k8sContext.ADUser
 
 	// Create certificate
 	tempFilePath, err := createTempCertFile(clusterName, certificate)
