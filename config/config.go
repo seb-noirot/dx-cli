@@ -7,22 +7,15 @@ import (
 	"path/filepath"
 )
 
-const (
-// ConfigFilePath = "/Users/snoirot/GolandProjects/dx-cli/contexts.yaml"
-)
-
 func GetConfigFilePath() (string, error) {
 	// Get the path to the current executable
-	exePath, err := os.Executable()
+	currentPath, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 
 	// Get the directory of the executable
-	dirPath := filepath.Dir(exePath)
-
-	// Join the directory path with "contexts.yaml"
-	configFilePath := filepath.Join(dirPath, "contexts.yaml")
+	configFilePath := filepath.Join(currentPath, "contexts.yaml")
 
 	return configFilePath, nil
 }
