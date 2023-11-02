@@ -3,6 +3,7 @@ package context
 import (
 	"dx-cli/config"
 	"dx-cli/utils"
+	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -22,8 +23,12 @@ Use 'set-current' to specify which context you want to rule over. Just like plac
 
 Be the master of your realm! 💪`,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		conf, err := utils.LoadConfig(config.ConfigFilePath, verbose)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		conf, err := utils.LoadConfig(path, verbose)
 
 		if err != nil {
 			return
@@ -63,7 +68,7 @@ Be the master of your realm! 💪`,
 			utils.Printf(true, "🚨 Oops! Failed to marshal updated config: %s\n", err)
 			return
 		}
-		err = os.WriteFile(config.ConfigFilePath, newData, 0644)
+		err = os.WriteFile(path, newData, 0644)
 		if err != nil {
 			utils.Printf(true, "🚨 Oops! Failed to update config file: %s\n", err)
 			return

@@ -16,7 +16,12 @@ var registerSSHKeyCmd = &cobra.Command{
 	Use:   "register",
 	Short: "Register an SSH key with a GitLab account",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return err
+		}
+		currentContext, err := utils.GetCurrentContext(path, false)
 		if err != nil {
 			utils.LogError("Error fetching current context: %s", err)
 			return nil

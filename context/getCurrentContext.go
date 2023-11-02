@@ -18,7 +18,12 @@ The 'current' command reveals the context you're currently working in. Think of 
 
 Stay oriented and keep sailing smoothly! 🚀`,
 	Run: func(cmd *cobra.Command, args []string) {
-		data, err := os.ReadFile(config.ConfigFilePath)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}

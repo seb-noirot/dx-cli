@@ -12,7 +12,12 @@ var listStacksCmd = &cobra.Command{
 	Short: "📋👀 Lists all GitLab stacks for the current context",
 	Long:  "📋🔍 Use this command to display all the GitLab stacks defined in your current context. Ideal for a quick overview and management. 🕵️‍♂️👌",
 	Run: func(cmd *cobra.Command, args []string) {
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		currentContext, err := utils.GetCurrentContext(path, false)
 		if err != nil {
 			utils.LogError("❌ Error fetching current context: %s", err)
 			return

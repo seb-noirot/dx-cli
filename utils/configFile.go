@@ -33,7 +33,7 @@ func LoadConfig(configFilePath string, verbose bool) (config.Config, error) {
 
 func GetCurrentContext(configFilePath string, verbose bool) (*config.Context, error) {
 
-	cfg, err := LoadConfig(config.ConfigFilePath, verbose)
+	cfg, err := LoadConfig(configFilePath, verbose)
 
 	if err != nil {
 		return nil, err

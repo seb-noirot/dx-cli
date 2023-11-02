@@ -14,7 +14,12 @@ var addGitLabCmd = &cobra.Command{
 	Long:  "📚 Add a new GitLab definition to the current context by specifying its name and host.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Fetch the current context
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		currentContext, err := utils.GetCurrentContext(path, false)
 		if err != nil {
 			utils.LogError("Fetching current context", err)
 			return

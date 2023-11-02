@@ -2,6 +2,7 @@ package context
 
 import (
 	"dx-cli/config"
+	"fmt"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"log"
@@ -19,7 +20,13 @@ Use 'delete' to remove a context you no longer need. Think of it as banishing it
 Gone but not forgotten! 😢`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		data, err := os.ReadFile(config.ConfigFilePath)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+
+		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
@@ -42,7 +49,7 @@ Gone but not forgotten! 😢`,
 			log.Fatalf("error: %v", err)
 		}
 
-		err = os.WriteFile(config.ConfigFilePath, newData, 0644)
+		err = os.WriteFile(path, newData, 0644)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}

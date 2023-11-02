@@ -22,7 +22,12 @@ var setupSettings = &cobra.Command{
 The 'settings' command handles all the heavy lifting. 
 Simply provide your Maven context and let the magic happen. 🌟`,
 	Run: func(cmd *cobra.Command, args []string) {
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, verbose) // true for verbose
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		currentContext, err := utils.GetCurrentContext(path, verbose) // true for verbose
 
 		if err != nil {
 			utils.Printf(true, "🚨 Error fetching current context: %s\n", err)

@@ -20,7 +20,12 @@ The 'list' command showcases all the contexts you've set up. It's your command-l
 Scroll through your options and take your pick! 🎯`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Read YAML file
-		data, err := os.ReadFile(config.ConfigFilePath)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}

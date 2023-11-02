@@ -2,6 +2,7 @@ package context
 
 import (
 	"dx-cli/config"
+	"fmt"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"log"
@@ -20,7 +21,12 @@ Just give it a name, and you're ready to configure away! 🛠
 Start building your perfect environment now! 🌈`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		data, err := os.ReadFile(config.ConfigFilePath)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
@@ -39,7 +45,7 @@ Start building your perfect environment now! 🌈`,
 			log.Fatalf("error: %v", err)
 		}
 
-		err = os.WriteFile(config.ConfigFilePath, newData, 0644)
+		err = os.WriteFile(path, newData, 0644)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}

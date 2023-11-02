@@ -22,7 +22,12 @@ var setupGitLabCmd = &cobra.Command{
 
 func runSetupGitLab(cmd *cobra.Command, args []string) {
 	// Fetch current context
-	currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+	path, err := config.GetConfigFilePath()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	currentContext, err := utils.GetCurrentContext(path, false)
 	if err != nil {
 		utils.LogError("Error fetching current context: %s", err)
 		return

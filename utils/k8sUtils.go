@@ -2,11 +2,17 @@ package utils
 
 import (
 	"dx-cli/config"
+	"fmt"
 )
 
 func SelectK8sCluster() (*config.KubernetesContext, error) {
 	// Fetch the current context
-	currentContext, err := GetCurrentContext(config.ConfigFilePath, false)
+	path, err := config.GetConfigFilePath()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return nil, err
+	}
+	currentContext, err := GetCurrentContext(path, false)
 	if err != nil {
 		Printf(true, "🚨 Error fetching current context: %s\n", err)
 		return nil, err

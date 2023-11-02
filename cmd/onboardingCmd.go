@@ -15,7 +15,13 @@ var onboardingCmd = &cobra.Command{
 	Long:  "🚀 This command performs all the steps necessary for a smooth onboarding.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Load the current context
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		fmt.Println("Config file path:", path)
+		currentContext, err := utils.GetCurrentContext(path, false)
 		if err != nil {
 			utils.LogError("Failed to load current context: %s", err)
 			return

@@ -1,13 +1,31 @@
 package config
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"os"
+	"path/filepath"
 )
 
 const (
-	ConfigFilePath = "/Users/snoirot/GolandProjects/dx-cli/contexts.yaml"
+// ConfigFilePath = "/Users/snoirot/GolandProjects/dx-cli/contexts.yaml"
 )
+
+func GetConfigFilePath() (string, error) {
+	// Get the path to the current executable
+	exePath, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	// Get the directory of the executable
+	dirPath := filepath.Dir(exePath)
+
+	// Join the directory path with "contexts.yaml"
+	configFilePath := filepath.Join(dirPath, "contexts.yaml")
+
+	return configFilePath, nil
+}
 
 type Config struct {
 	Contexts       []Context `yaml:"contexts"`
@@ -71,7 +89,12 @@ type GitlabStack struct {
 
 func UpdateCurrentContext(updatedContext *Context) error {
 	// Read the existing YAML file
-	data, err := os.ReadFile(ConfigFilePath)
+	path, err := GetConfigFilePath()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return err
+	}
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -98,7 +121,7 @@ func UpdateCurrentContext(updatedContext *Context) error {
 	}
 
 	// Write the updated YAML back into the file
-	err = os.WriteFile(ConfigFilePath, updatedData, 0644)
+	err = os.WriteFile(path, updatedData, 0644)
 	if err != nil {
 		return err
 	}

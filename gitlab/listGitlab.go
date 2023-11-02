@@ -3,6 +3,7 @@ package gitlab
 import (
 	"dx-cli/config"
 	"dx-cli/utils"
+	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +14,12 @@ var listGitLabCmd = &cobra.Command{
 	Long:  "📚 Enumerate all available GitLab definitions within the current context, showing the name and host for each.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Fetch the current context
-		currentContext, err := utils.GetCurrentContext(config.ConfigFilePath, false)
+		path, err := config.GetConfigFilePath()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		currentContext, err := utils.GetCurrentContext(path, false)
 		if err != nil {
 			utils.Printf(true, "🚨 Error: Could not fetch current context: %s\n", err)
 			return
